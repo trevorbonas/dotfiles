@@ -12,6 +12,7 @@ set hidden
 set spell
 set tabstop=4
 set shiftwidth=4
+set cursorline
 set cindent
 set nohlsearch
 set directory=$HOME/.nvim/swapfiles//
@@ -19,32 +20,39 @@ set noerrorbells
 set incsearch
 set signcolumn=yes
 set expandtab
-set cursorline
-set nocompatible
-filetype plugin on
-syntax on
+set nofixendofline
+set laststatus=2
+
+" Show whitespace as characters
+" set listchars=eol:¬,tab:>·,trail:~,extends:>,precedes:<,space:␣
+" set list
 
 map <F6> :setlocal spell! spelllang=en_us<CR>
 call plug#begin('~/.vim/plugged')
-Plug 'nvim-telescope/telescope.nvim'
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'kaicataldo/material.vim', { 'branch': 'main' }
 Plug 'christoomey/vim-tmux-navigator'
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
-Plug 'pineapplegiant/spaceduck', { 'branch': 'main' }
+Plug 'dracula/vim', { 'as': 'dracula' }
+Plug 'joshdick/onedark.vim', { 'as': 'onedark' }
+Plug 'drewtempelmeyer/palenight.vim', { 'as': 'palenight' }
 Plug 'lewis6991/gitsigns.nvim'
-Plug 'EdenEast/nightfox.nvim' " Vim-Plug
-Plug 'bluz71/vim-moonfly-colors', { 'branch': 'cterm-compat' }
-Plug 'michaeldyrynda/carbon'
-Plug 'yonlu/omni.vim'
 Plug 'projekt0n/github-nvim-theme'
-Plug 'nvim-tree/nvim-web-devicons'
 Plug 'nvim-tree/nvim-tree.lua'
-Plug 'vimwiki/vimwiki'
-Plug 'bluz71/vim-nightfly-colors'
-Plug 'catppuccin/nvim', { 'as': 'catppuccin' }
+Plug 'LunarVim/Colorschemes'
+Plug 'rakr/vim-one'
+Plug 'HenryNewcomer/vim-theme-papaya'
+Plug 'ts-26a/vim-darkspace'
+Plug 'tyrannicaltoucan/vim-deep-space'
 call plug#end()
+
+let g:github_comment_style = "NONE"
+let g:github_keyword_style = "NONE"
+let g:github_function_style = "NONE"
+let g:github_variable_style = "NONE"
+let g:coc_default_semantic_highlight_groups = 1
+colorscheme github_dark_default
 
 autocmd FileType * setlocal formatoptions-=c formatoptions-=r formatoptions-=o
 set splitbelow splitright
@@ -58,7 +66,7 @@ nnoremap <SPACE> <Nop>
 let mapleader=" "
 
 " fzf keybind
-nmap <C-P> :FZF<CR>
+nmap <C-P> :FZF --keep-right<CR>
 
 " CTRL-Tab is next tab
 noremap <C-Tab> :<C-U>tabnext<CR>
@@ -93,13 +101,45 @@ endif
 " For Neovim > 0.1.5 and Vim > patch 7.4.1799 - https://github.com/vim/vim/commit/61be73bb0f965a895bfb064ea3e55476ac175162
 " Based on Vim patch 7.4.1770 (`guicolors` option) - https://github.com/vim/vim/commit/8a633e3427b47286869aa4b96f2bfc1fe65b25cd
 " https://github.com/neovim/neovim/wiki/Following-HEAD#20160511
-if exists('+termguicolors')
-      let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
-      let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
-      set termguicolors
+if (has('termguicolors'))
+  set termguicolors
 endif
 
-" Lua integration
+" Enable FZF to search for strings within hidden files
+command! -bang -nargs=* Rg
+  \ call fzf#vim#grep(
+  \   'rg --hidden --column --line-number --no-heading --color=always --smart-case -- '.shellescape(<q-args>), 1,
+  \   fzf#vim#with_preview({'options': ['--keep-right']}), <bang>0)
+
+" Make FZF keep buffer names right aligned
+command! -bang Buffers call fzf#vim#buffers({'options': ['--keep-right']})
+
+" Make FZF keep buffer names right aligned
+command! -bang History call fzf#vim#history({'options': ['--keep-right']})
+
+" PLUGIN: FZF
+nnoremap <silent> <Leader>b :Buffers<CR>
+nnoremap <silent> <Leader>f :Rg<CR>
+nnoremap <silent> <Leader>/ :BLines<CR>
+nnoremap <silent> <Leader>' :Marks<CR>
+nnoremap <silent> <Leader>g :Commits<CR>
+nnoremap <silent> <Leader>H :Helptags<CR>
+nnoremap <silent> <Leader>hh :History<CR>
+nnoremap <silent> <Leader>h: :History:<CR>
+nnoremap <silent> <Leader>h/ :History/<CR>
+
+" Source vimrc
+nnoremap <silent> <Leader>vc :source $MYVIMRC<CR>:echo "Reloaded init.vim"<CR>
+
+" Delete current buffer
+nnoremap <silent> <Leader>dd :bd<CR>
+
+" Delete all buffers and return to home screen
+nnoremap <silent> <Leader>da :bufdo bwipeout<CR>:Alpha<CR>
+
+" Edit MYVIMRC
+nnoremap <silent> <Leader>c :e $MYVIMRC<CR>
+
 lua <<EOF
 
 -- Setup gitsigns
@@ -110,10 +150,10 @@ vim.g.loaded_netrwPlugin = 1
 -- empty setup using defaults
 require("nvim-tree").setup()
 
+
 require('github-theme').setup({
 colors = {
-        cursor_line_nr = "#FCF669",
-        fg = "#fafafa",
+        cursor_line_nr = "#FCF669"
    },
  overrides = function(c)
    return {
@@ -127,6 +167,7 @@ colors = {
     variable_style = "NONE"
 })
 
+-- Setup gitsigns
 require('gitsigns').setup {
   signs = {
     add          = {hl = 'GitSignsAdd'   , text = '│', numhl='GitSignsAddNr'   , linehl='GitSignsAddLn'},
@@ -168,12 +209,17 @@ require('gitsigns').setup {
     enable = false
   },
 }
+
 require "paq" {
     "savq/paq-nvim";
     "goolord/alpha-nvim";
     "kyazdani42/nvim-web-devicons";
     "glepnir/dashboard-nvim";
+    "nvim-lua/plenary.nvim";
+    "kdheepak/lazygit.nvim";
+    "nvim-telescope/telescope.nvim";
 }
+require('telescope').load_extension('lazygit')
 
 local status_ok, alpha = pcall(require, "alpha")
 if not status_ok then
@@ -182,18 +228,43 @@ end
 
 local dashboard = require "alpha.themes.dashboard"
 
+-- dashboard.section.header.val = {
+--  [[]],
+--  [[]],
+-- [[  __   __    _____   _____     _     _   __    __    __   ]],
+-- [[ /_/\ /\_\ /\_____\ ) ___ (   /_/\ /\_\ /\_\  /_/\  /\_\  ]],
+-- [[ ) ) \ ( (( (_____// /\_/\ \  ) ) ) ( ( \/_/  ) ) \/ ( (  ]],
+-- [[/_/   \ \_\\ \__\ / /_/ (_\ \/_/ / \ \_\ /\_\/_/ \  / \_\ ]],
+-- [[\ \ \   / // /__/_\ \ )_/ / /\ \ \_/ / // / /\ \ \\// / / ]],
+-- [[ )_) \ (_(( (_____\\ \/_\/ /  \ \   / /( (_(  )_) )( (_(  ]],
+-- [[ \_\/ \/_/ \/_____/ )_____(    \_\_/_/  \/_/  \_\/  \/_/  ]],
+-- [[]]
+-- }
+
 dashboard.section.header.val = {
-    [[]],
-    [[]],
-[[         ,MMM8&&&.]],
-[[    _...MMMMM88&&&&..._]],
-[[ .::'''MMMMM88&&&&&&'''::.]],
-[[::     MMMMM88&&&&&&     ::]],
-[['::....MMMMM88&&&&&&....::']],
-[[   `''''MMMMM88&&&&''''`]],
-[[         'MMM8&&&']],
-[[]],
+  [[]],
+  [[]],
+[[ __   __     ______     ______     __   __   __     __    __    ]],
+[[/\ "-.\ \   /\  ___\   /\  __ \   /\ \ / /  /\ \   /\ "-./  \   ]],
+[[\ \ \-.  \  \ \  __\   \ \ \/\ \  \ \ \'/   \ \ \  \ \ \-./\ \  ]],
+[[ \ \_\\"\_\  \ \_____\  \ \_____\  \ \__|    \ \_\  \ \_\ \ \_\ ]],
+[[  \/_/ \/_/   \/_____/   \/_____/   \/_/      \/_/   \/_/  \/_/ ]],
+[[]]
 }
+
+
+-- dashboard.section.header.val = {
+    -- [[]],
+    -- [[]],
+-- [[         ,MMM8&&&.]],
+-- [[    _...MMMMM88&&&&..._]],
+-- [[ .::'''MMMMM88&&&&&&'''::.]],
+-- [[::     MMMMM88&&&&&&     ::]],
+-- [['::....MMMMM88&&&&&&....::']],
+-- [[   `''''MMMMM88&&&&''''`]],
+-- [[         'MMM8&&&']],
+-- [[]],
+-- }
 
 dashboard.section.buttons.val = {
   dashboard.button("p", "λ Find File", ":FZF<CR>"),
@@ -227,23 +298,6 @@ alpha.setup(dashboard.opts)
 -- End of Lua
 EOF
 
-command! -bang -nargs=* Rg
-    \ call fzf#vim#grep(
-    \   'rg --hidden --column --line-number --no-heading --color=always --smart-case -- '.shellescape(<q-args>), 1,
-    \   fzf#vim#with_preview(), <bang>0)
+" LazyGit shortcut
+nnoremap <Leader>lg :LazyGit<CR>
 
-" PLUGIN: FZF
-nnoremap <silent> <Leader>b :Buffers<CR>
-nnoremap <silent> <Leader>f :Rg<CR>
-nnoremap <silent> <Leader>' :Marks<CR>
-nnoremap <silent> <Leader>g :Commits<CR>
-nnoremap <silent> <Leader>H :Helptags<CR>
-nnoremap <silent> <Leader>hh :History<CR>
-nnoremap <silent> <Leader>h: :History:<CR>
-nnoremap <silent> <Leader>h/ :History/<CR>
-
-" Source vimrc
-nnoremap <silent> <Leader>vc :source $MYVIMRC<CR>:echo "Reloaded init.vim"<CR>
-
-colorscheme github_dark_default
-highlight clear SignColumn
