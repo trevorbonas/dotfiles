@@ -45,14 +45,18 @@ Plug 'rakr/vim-one'
 Plug 'HenryNewcomer/vim-theme-papaya'
 Plug 'ts-26a/vim-darkspace'
 Plug 'tyrannicaltoucan/vim-deep-space'
+Plug 'https://gitlab.com/protesilaos/tempus-themes-vim.git'
+Plug 'navarasu/onedark.nvim'
 call plug#end()
 
-let g:github_comment_style = "NONE"
-let g:github_keyword_style = "NONE"
-let g:github_function_style = "NONE"
-let g:github_variable_style = "NONE"
+syntax enable
+
 let g:coc_default_semantic_highlight_groups = 1
-colorscheme github_dark_default
+" Favourite colorschemes
+"colorscheme github_dark_high_contrast
+colorscheme github_dark_dimmed
+"colorscheme tempus_winter
+"colorscheme astrodark
 
 autocmd FileType * setlocal formatoptions-=c formatoptions-=r formatoptions-=o
 set splitbelow splitright
@@ -150,23 +154,6 @@ vim.g.loaded_netrwPlugin = 1
 -- empty setup using defaults
 require("nvim-tree").setup()
 
-
-require('github-theme').setup({
-colors = {
-        cursor_line_nr = "#FCF669"
-   },
- overrides = function(c)
-   return {
-     Statusline = { bg = "#D9D9D9", fg = "#000000"},
-   }
- end,
-    dev = true,
-    comment_style = "NONE",
-    keyword_style = "NONE",
-    function_style = "NONE",
-    variable_style = "NONE"
-})
-
 -- Setup gitsigns
 require('gitsigns').setup {
   signs = {
@@ -218,8 +205,78 @@ require "paq" {
     "nvim-lua/plenary.nvim";
     "kdheepak/lazygit.nvim";
     "nvim-telescope/telescope.nvim";
+    "AstroNvim/astrotheme";
 }
 require('telescope').load_extension('lazygit')
+
+require("astrotheme").setup({
+  palette = "astrodark", -- String of the default palette to use when calling `:colorscheme astrotheme`
+  background = { -- :h background, palettes to use when using the core vim background colors
+    light = "astrolight",
+    dark = "astrodark",
+  },
+
+  style = {
+    transparent = false,         -- Bool value, toggles transperency.
+    inactive = true,             -- Bool value, toggles inactive window color.
+    float = true,                -- Bool value, toggles floating windows background colors.
+    popup = true,                -- Bool value, toggles popup background color.
+    neotree = true,              -- Bool value, toggles neo-trees background color.
+    border = true,               -- Bool value, toggles borders.
+    title_invert = true,         -- Bool value, swaps text and background colors.
+    italic_comments = true,      -- Bool value, toggles italic comments.
+    simple_syntax_colors = false, -- Bool value, simplifies the amounts of colors used for syntax highlighting.
+  },
+
+
+  termguicolors = true, -- Bool value, toggles if termguicolors are set by AstroTheme.
+
+  terminal_color = true, -- Bool value, toggles if terminal_colors are set by AstroTheme.
+
+  plugin_default = "auto", -- Sets how all plugins will be loaded
+                           -- "auto": Uses lazy / packer enabled plugins to load highlights.
+                           -- true: Enables all plugins highlights.
+                           -- false: Disables all plugins.
+
+  plugins = {              -- Allows for individual plugin overides using plugin name and value from above.
+    ["bufferline.nvim"] = false,
+  },
+
+  palettes = {
+    global = {             -- Globaly accessible palettes, theme palettes take priority.
+      my_grey = "#ebebeb",
+      my_color = "#ffffff"
+    },
+    astrodark = {          -- Extend or modify astrodarks palette colors
+      ui = {
+        red = "#800010", -- Overrides astrodarks red UI color
+        accent = "#CC83E3"  -- Changes the accent color of astrodark.
+      },
+      syntax = {
+        cyan = "#800010", -- Overrides astrodarks cyan syntax color
+        comments = "#CC83E3"  -- Overrides astrodarks comment color.
+      },
+      my_color = "#000000" -- Overrides global.my_color
+    },
+  },
+
+  highlights = {
+    global = {             -- Add or modify hl groups globaly, theme specific hl groups take priority.
+      modify_hl_groups = function(hl, c)
+        hl.PluginColor4 = {fg = c.my_grey, bg = c.none }
+      end,
+      ["@String"] = {fg = "#ff00ff", bg = "NONE"},
+    },
+    astrodark = {
+      -- first parameter is the highlight table and the second parameter is the color palette table
+      modify_hl_groups = function(hl, c) -- modify_hl_groups function allows you to modify hl groups,
+        --hl.Comment.fg = c.my_color
+        hl.Comment.italic = true
+      end,
+      ["@String"] = {fg = "#ff00ff", bg = "NONE"},
+    },
+  },
+})
 
 local status_ok, alpha = pcall(require, "alpha")
 if not status_ok then
@@ -227,19 +284,6 @@ if not status_ok then
 end
 
 local dashboard = require "alpha.themes.dashboard"
-
--- dashboard.section.header.val = {
---  [[]],
---  [[]],
--- [[  __   __    _____   _____     _     _   __    __    __   ]],
--- [[ /_/\ /\_\ /\_____\ ) ___ (   /_/\ /\_\ /\_\  /_/\  /\_\  ]],
--- [[ ) ) \ ( (( (_____// /\_/\ \  ) ) ) ( ( \/_/  ) ) \/ ( (  ]],
--- [[/_/   \ \_\\ \__\ / /_/ (_\ \/_/ / \ \_\ /\_\/_/ \  / \_\ ]],
--- [[\ \ \   / // /__/_\ \ )_/ / /\ \ \_/ / // / /\ \ \\// / / ]],
--- [[ )_) \ (_(( (_____\\ \/_\/ /  \ \   / /( (_(  )_) )( (_(  ]],
--- [[ \_\/ \/_/ \/_____/ )_____(    \_\_/_/  \/_/  \_\/  \/_/  ]],
--- [[]]
--- }
 
 dashboard.section.header.val = {
   [[]],
@@ -301,3 +345,10 @@ EOF
 " LazyGit shortcut
 nnoremap <Leader>lg :LazyGit<CR>
 
+" Gitsigns shortcuts
+" c for change
+nnoremap <Leader>cj :Gitsigns next_hunk<CR>
+nnoremap <Leader>ck :Gitsigns prev_hunk<CR>
+nnoremap <Leader>cb :Gitsigns blame_line<CR>
+nnoremap <Leader>cuh :Gitsigns reset_hunk<CR>
+nnoremap <Leader>cub :Gitsigns reset_buffer<CR>
