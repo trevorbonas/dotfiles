@@ -32,14 +32,4 @@ else
   exit 1
 fi
 
-# SSH
-mkdir -p ~/.ssh
-ln -sf "$DOTFILES_DIR/ssh/config" ~/.ssh/config
-if [ $? -eq 0 ]; then
-  echo -e "${GREEN}Installed SSH configuration${NC}"
-else
-  echo -e "${RED}Failed to install SSH configuration${NC}"
-  exit 1
-fi
-
 echo -e "${GREEN}All configurations successfully installed${NC}"
