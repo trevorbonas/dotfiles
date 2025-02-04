@@ -14,7 +14,11 @@ RED='\033[0;31m'
 NC='\033[0m' # No colour
 
 # Neovim
-mkdir -p ~/.config/nvim
+if [ -d ~/.config/nvim ]; then
+  echo -e "${RED}~/.config/nvim already exists. Please remove it and try again${NC}"
+  exit 1
+fi
+
 ln -sf "$DOTFILES_DIR/nvim" ~/.config/nvim
 if [ $? -eq 0 ]; then
   echo -e "${GREEN}Installed Neovim configuration${NC}"
