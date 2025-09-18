@@ -18,20 +18,19 @@ return {
                     'jsonls',
                     'ltex',
                     'lua_ls',
-                    'ruff',
+                    'basedpyright',
                     'rust_analyzer',
                     'tailwindcss',
                     'texlab',
                     'tinymist',
                     'ts_ls',
-                    'volar',
                     'yamlls',
                 },
             })
             -- ╭───────────╮
             -- │ LSPCONFIG │
             -- ╰───────────╯
-            local lspconfig = require('lspconfig')
+            local lspconfig = vim.lsp.config
 
             local lsp_defaults = lspconfig.util.default_config
 
@@ -257,39 +256,10 @@ return {
                 },
             })
 
-            -- ╭───────────╮
-            -- │ GO SERVER │
-            -- ╰───────────╯
-            lspconfig.gopls.setup({
-                capabilities = capabilities,
-            })
-
             -- ╭──────────────╮
             -- │ C/C++ SERVER │
             -- ╰──────────────╯
             lspconfig.clangd.setup({
-                capabilities = capabilities,
-            })
-
-            -- ╭──────────────────╮
-            -- │ VOLAR VUE SERVER │
-            -- ╰──────────────────╯
-            lspconfig.volar.setup({
-                capabilities = capabilities,
-                init_options = {
-                    typescript = {
-                        tsdk = '/Users/ilias/.local/share/nvim/mason/packages/typescript-language-server/node_modules/typescript/lib',
-                    },
-                    vue = {
-                        hybridMode = false,
-                    },
-                },
-            })
-
-            -- ╭───────────────╮
-            -- │ PYTHON SERVER │
-            -- ╰───────────────╯
-            lspconfig.ruff.setup({
                 capabilities = capabilities,
             })
 
@@ -457,8 +427,10 @@ return {
             -- ╭─────────────╮
             -- │ RUST SERVER │
             -- ╰─────────────╯
-            lspconfig.rust_analyzer.setup({
-                capabilities = capabilities,
+            vim.lsp.config('rust_analyzer', {
+                settings = {
+                    ['rust-analyzer'] = {},
+                },
             })
 
             -- ╭──────────────╮

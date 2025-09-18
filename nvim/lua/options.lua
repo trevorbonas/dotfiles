@@ -1,6 +1,7 @@
 local opt = vim.opt
 
 opt.autoindent = true -- Copy indent from current line when starting a new line
+-- opt.colorcolumn = "80"
 opt.cursorline = true -- Show cursor line
 opt.swapfile = false -- Don't use swapfile
 opt.expandtab = true -- Use spaces instead of tabs
